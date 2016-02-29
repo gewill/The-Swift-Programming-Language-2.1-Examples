@@ -160,11 +160,3 @@ rightChannel.currentLevel = 11
 print(rightChannel.currentLevel)
 print(AudioChannel.maxInputLevelForAllChannels)
 
-
-
-
-
-
-
-
-
