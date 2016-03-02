@@ -328,3 +328,4 @@ struct Checkerboard {
 
 let board = Checkerboard()
 board.squareIsBlackAtRow(0, column: 10) //bug 此处仅为示范代码
+
