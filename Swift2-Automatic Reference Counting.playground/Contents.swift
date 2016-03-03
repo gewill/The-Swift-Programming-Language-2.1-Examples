@@ -38,7 +38,6 @@ reference3 = nil
 
 //对于生命周期中会变为nil的实例使用弱引用。相反地，对于初始化赋值后再也不会被赋值为nil的实例，使用无主引用。
 
-
 //和弱引用类似，无主引用不会牢牢保持住引用的实例。和弱引用不同的是，无主引用是永远有值的。因此，无主引用总是被定义为非可选类型（non-optional type）。你可以在声明属性或者变量时，在前面加上关键字unowned表示这是一个无主引用。
 
 //: 1 - Person和Apartment的例子展示了两个属性的值都允许为nil，并会潜在的产生循环强引用。这种场景最适合用弱引用来解决。
@@ -92,7 +91,6 @@ let card = CreditCard(number: 1234567890123456, customer: lee!)
 lee = nil
 card
 
-
 //: 3 - 两个属性都必须有值，并且初始化完成后永远不会为nil。在这种场景中，需要一个类使用无主属性，而另外一个类使用隐式解析可选属性。
 
 class Country {
@@ -117,4 +115,41 @@ country = Country(name: "Canada", capitalName: "Ottawa")
 print("\(country!.name)'s capital city is called \(country!.capitalCity.name)")
 country = nil
 
+//: 解决闭包引起的循环强引用
 
+//在定义闭包时同时定义捕获列表作为闭包的一部分，通过这种方式可以解决闭包和类实例之间的循环强引用。
+
+/*
+ lazy var someClosure: (Int, String) -> String = {
+ [unowned self, weak delegate = self.delegate!] (index: Int, stringToProcess: String) -> String in
+ // 这里是闭包的函数体
+ }
+ */
+
+class HTMLElement {
+
+    let name: String
+    let text: String?
+
+    lazy var asHTML: Void -> String = {
+        [unowned self] in
+        if let text = self.text {
+            return "<\(self.name)>\(text)</\(self.name)>"
+        } else {
+            return "<\(self.name) />"
+        }
+    }
+
+    init(name: String, text: String? = nil) {
+        self.name = name
+        self.text = text
+    }
+
+    deinit {
+        print("\(name) is being deinitialized")
+    }
+}
+
+var paragraph: HTMLElement? = HTMLElement(name: "p", text: "hello, world")
+print(paragraph!.asHTML())
+paragraph = nil
